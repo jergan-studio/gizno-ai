@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Giznoz AI</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen">
+    <h1>Giznoz AI</h1>
+
+    <form id="login-form">
+      <input id="login-name" placeholder="Username" required />
+      <input id="login-pass" type="password" placeholder="Password" required />
+      <button type="submit">Enter</button>
+    </form>
+
+    <button id="skip-login-btn">Skip</button>
+  </div>
+
+  <!-- CHAT SCREEN -->
+  <div id="chat-screen" class="hidden">
+
+    <div id="topbar">
+      <span id="user-pill">Guest</span>
+    </div>
+
+    <div id="messages"></div>
+
+    <form id="input-form">
+      <input id="chat-input" placeholder="Message..." autocomplete="off"/>
+      <button id="send-btn">Send</button>
+    </form>
+
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
