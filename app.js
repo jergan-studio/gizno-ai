@@ -1,4 +1,4 @@
-const GROQ_API_KEY = "Pgsk_3UgGBWZY1PDvMfSkc1nyWGdyb3FYI4ZLJRHjlwyCVBCFSAgVflOo";
+const GROQ_API_KEY = "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";
 
 const messagesEl = document.getElementById("messages");
 const form = document.getElementById("input-form");
@@ -6,7 +6,7 @@ const input = document.getElementById("chat-input");
 
 let history = [];
 
-/* ---------------- MESSAGE UI ---------------- */
+/* ---------------- UI ---------------- */
 
 function addUser(text) {
   const div = document.createElement("div");
@@ -16,19 +16,19 @@ function addUser(text) {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
-function addAI(text) {
+function addAI(content) {
   const div = document.createElement("div");
   div.className = "msg ai";
 
-  const parsed = parseCode(text);
+  const parsed = parseCode(content);
 
   if (!parsed) {
-    div.textContent = text;
+    div.textContent = content;
     messagesEl.appendChild(div);
     return;
   }
 
-  div.appendChild(renderCodeBox(parsed.code, parsed.explain));
+  div.appendChild(createCodeBox(parsed.code, parsed.explain));
   messagesEl.appendChild(div);
 }
 
@@ -46,20 +46,20 @@ function parseCode(text) {
 
 /* ---------------- CODE UI ---------------- */
 
-function renderCodeBox(code, explain) {
+function createCodeBox(code, explain) {
   const box = document.createElement("div");
   box.className = "code-box";
 
   const tabs = document.createElement("div");
   tabs.className = "tabs";
 
-  const tabCode = document.createElement("div");
-  tabCode.className = "tab active";
-  tabCode.textContent = "Code";
+  const tab1 = document.createElement("div");
+  tab1.className = "tab active";
+  tab1.textContent = "Code";
 
-  const tabText = document.createElement("div");
-  tabText.className = "tab";
-  tabText.textContent = "Explain";
+  const tab2 = document.createElement("div");
+  tab2.className = "tab";
+  tab2.textContent = "Explain";
 
   const codeDiv = document.createElement("div");
   codeDiv.className = "code";
@@ -69,75 +69,91 @@ function renderCodeBox(code, explain) {
   textDiv.className = "text hidden";
   textDiv.textContent = explain;
 
-  const copyBtn = document.createElement("button");
-  copyBtn.className = "copy-btn";
-  copyBtn.textContent = "Copy Code";
+  const copy = document.createElement("button");
+  copy.className = "copy-btn";
+  copy.textContent = "Copy";
 
-  copyBtn.onclick = () => {
+  copy.onclick = () => {
     navigator.clipboard.writeText(code);
-    copyBtn.textContent = "Copied!";
-    setTimeout(() => copyBtn.textContent = "Copy Code", 1200);
+    copy.textContent = "Copied!";
+    setTimeout(() => (copy.textContent = "Copy"), 1200);
   };
 
-  tabCode.onclick = () => {
-    tabCode.classList.add("active");
-    tabText.classList.remove("active");
+  tab1.onclick = () => {
+    tab1.classList.add("active");
+    tab2.classList.remove("active");
     codeDiv.classList.remove("hidden");
     textDiv.classList.add("hidden");
   };
 
-  tabText.onclick = () => {
-    tabText.classList.add("active");
-    tabCode.classList.remove("active");
-    codeDiv.classList.add("hidden");
+  tab2.onclick = () => {
+    tab2.classList.add("active");
+    tab1.classList.remove("active");
     textDiv.classList.remove("hidden");
+    codeDiv.classList.add("hidden");
   };
 
-  tabs.appendChild(tabCode);
-  tabs.appendChild(tabText);
+  tabs.appendChild(tab1);
+  tabs.appendChild(tab2);
 
   box.appendChild(tabs);
   box.appendChild(codeDiv);
   box.appendChild(textDiv);
-  box.appendChild(copyBtn);
+  box.appendChild(copy);
 
   return box;
 }
 
-/* ---------------- GROQ AI ---------------- */
+/* ---------------- GROQ AI (FIXED + DEBUG) ---------------- */
 
 async function askAI(text) {
   addAI("Thinking...");
 
   try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are Giznoz. If user asks for code, ALWAYS reply like:\nCODE:\n...\n\nEXPLAIN:\n..."
-          },
-          ...history,
-          { role: "user", content: text }
-        ]
-      })
-    });
+    const res = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${GROQ_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "llama-3.1-8b-instant",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are Giznoz AI. If code is needed, ALWAYS use:\nCODE:\n...\n\nEXPLAIN:\n..."
+            },
+            ...history,
+            { role: "user", content: text }
+          ]
+        })
+      }
+    );
 
     const data = await res.json();
 
-    const reply = data?.choices?.[0]?.message?.content;
+    console.log("GROQ RESPONSE:", data);
 
     messagesEl.lastChild.remove();
 
+    // 🔴 SHOW REAL ERROR
+    if (!res.ok) {
+      addAI("HTTP ERROR: " + (data.error?.message || res.statusText));
+      return;
+    }
+
+    if (data.error) {
+      addAI("GROQ ERROR: " + data.error.message);
+      return;
+    }
+
+    const reply = data?.choices?.[0]?.message?.content;
+
     if (!reply) {
-      addAI("No response from AI.");
+      addAI("No response. Check console (F12).");
       return;
     }
 
@@ -147,7 +163,7 @@ async function askAI(text) {
   } catch (err) {
     console.error(err);
     messagesEl.lastChild.remove();
-    addAI("Error connecting to AI.");
+    addAI("Network error (fetch failed).");
   }
 }
 
