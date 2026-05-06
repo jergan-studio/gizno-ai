@@ -5,34 +5,29 @@ body {
   color: white;
 }
 
-#app {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+.hidden { display: none; }
 
-.hidden {
-  display: none;
-}
-
-/* LOGIN */
 #login-screen {
-  margin: auto;
   text-align: center;
+  margin-top: 100px;
 }
 
-#login-screen input {
+input {
   display: block;
   margin: 10px auto;
   padding: 10px;
 }
 
-#login-screen button {
-  padding: 10px 20px;
-  margin-top: 10px;
+button {
+  padding: 10px;
 }
 
-/* CHAT */
+#chat-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
 #topbar {
   padding: 10px;
   background: #1a1a1a;
@@ -45,10 +40,11 @@ body {
 }
 
 .message {
-  margin: 10px 0;
+  margin: 8px 0;
   padding: 10px;
   border-radius: 10px;
   max-width: 70%;
+  white-space: pre-wrap;
 }
 
 .user {
@@ -68,9 +64,5 @@ body {
 
 #chat-input {
   flex: 1;
-  padding: 10px;
-}
-
-button {
   padding: 10px;
 }
