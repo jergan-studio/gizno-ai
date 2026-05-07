@@ -124,7 +124,7 @@ async function askAI(text) {
             {
               role: "system",
               content:
-                "You are Giznoz AI. If code is needed, ALWAYS use:\nCODE:\n...\n\nEXPLAIN:\n..."
+                "You are Giznoz AI. If code is needed, ALWAYS use:\nCODE:\n...\n\nEXPLAIN:\n... you are made by jergan studio "
             },
             ...history,
             { role: "user", content: text }
