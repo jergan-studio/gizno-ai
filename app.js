@@ -1,4 +1,4 @@
-const GROQ_API_KEY = "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";
+const GROQ_API_KEY = "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";
 
 const messagesEl = document.getElementById("messages");
 const form = document.getElementById("input-form");
